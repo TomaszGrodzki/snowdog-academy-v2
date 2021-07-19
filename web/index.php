@@ -5,6 +5,8 @@ use Snowdog\Academy\Repository\RouteRepository;
 use Snowdog\Academy\Component\Menu;
 
 session_start();
+if (!isset($_SESSION['login']))
+    $_SESSION['login'] = false;
 
 $container = require __DIR__ . '/../app/bootstrap.php';
 $routeRepository = RouteRepository::getInstance();
@@ -12,7 +14,7 @@ $dispatcher = FastRoute\simpleDispatcher($routeRepository);
 Menu::setContainer($container);
 
 $route = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-switch($route[0]) {
+switch ($route[0]) {
     case Dispatcher::NOT_FOUND:
         header('HTTP/1.0 404 Not Found');
         require __DIR__ . '/../src/view/errors/404.phtml';

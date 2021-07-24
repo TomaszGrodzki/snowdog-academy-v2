@@ -63,8 +63,10 @@ class Cryptos
             header('Location: /cryptos');
             return;
         }
-        
-        $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, $_POST['amount']);
+        $amount = $_POST['amount'];
+        $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, $amount);
+
+        $_SESSION['flash'] = 'You have bought '.$amount .' of '. $cryptocurrency->getId();
 
         header('Location: /cryptos');
     }

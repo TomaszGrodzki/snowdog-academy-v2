@@ -52,6 +52,19 @@ class Cryptos
         // TODO
         // verify if user is logged in
         // use $this->userCryptocurrencyManager->addCryptocurrencyToUser() method
+        $user = $this->userManager->getByLogin((string) $_SESSION['login']);
+        if (!$user) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        $cryptocurrency = $this->cryptocurrencyManager->getCryptocurrencyById($id);
+        if (!$cryptocurrency) {
+            header('Location: /cryptos');
+            return;
+        }
+        
+        $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, $_POST['amount']);
 
         header('Location: /cryptos');
     }

@@ -95,6 +95,31 @@ class Cryptos
         // verify if user is logged in
         // use $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser() method
 
+        $user = $this->userManager->getByLogin((string) $_SESSION['login']);
+        if (!$user) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        $cryptocurrency = $this->cryptocurrencyManager->getCryptocurrencyById($id);
+        if (!$cryptocurrency) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        $amount = $_POST['amount'];
+        $userCryptocurrency = $this->userCryptocurrencyManager->getUserCryptocurrency($user->getId(), $id);
+        $newUserCryptocurrencyAmount = $userCryptocurrency->getAmount() - $amount;
+
+        if($newUserCryptocurrencyAmount < 0) {
+            $_SESSION['flash'] = 'You can not sell more than you have';
+            header('Location: /account');
+            return;
+        }
+
+        $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, $newUserCryptocurrencyAmount);
+        $_SESSION['flash'] = 'You have sold '.$amount .' of '. $cryptocurrency->getId();
+
         header('Location: /cryptos');
     }
 

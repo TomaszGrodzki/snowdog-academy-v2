@@ -33,7 +33,15 @@ class UserCryptocurrencyManager
 
     public function subtractCryptocurrencyFromUser(int $userId, Cryptocurrency $cryptocurrency, int $amount): void
     {
-        // TODO
+        if ($amount > 0) {
+            $statement = $this->database->prepare('UPDATE user_cryptocurrencies SET amount = :amount WHERE user_id = :user_id AND cryptocurrency_id = :cryptocurrency_id');
+            $statement->bindParam(':amount', $amount, Database::PARAM_INT);
+        } else {
+            $statement = $this->database->prepare('DELETE FROM user_cryptocurrencies WHERE user_id = :user_id AND cryptocurrency_id = :cryptocurrency_id');
+        }
+        $statement->bindParam(':user_id', $userId, Database::PARAM_INT);
+        $statement->bindParam(':cryptocurrency_id', $cryptocurrency->getId(), Database::PARAM_STR);
+        $statement->execute();
     }
 
     public function getUserCryptocurrency(int $userId, string $cryptocurrencyId): ?UserCryptocurrency

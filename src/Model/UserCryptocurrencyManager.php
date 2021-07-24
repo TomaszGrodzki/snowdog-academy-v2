@@ -24,7 +24,16 @@ class UserCryptocurrencyManager
 
     public function addCryptocurrencyToUser(int $userId, Cryptocurrency $cryptocurrency, int $amount): void
     {
-        $statement = $this->database->prepare('INSERT INTO user_cryptocurrencies (user_id, cryptocurrency_id, amount) VALUES (:user_id, :cryptocurrency_id, :amount)');
+        $userCryptocurrency = $this->getUserCryptocurrency($userId, $cryptocurrency->getId());
+        if(!$userCryptocurrency) {
+            $statement = $this->database->prepare('INSERT INTO user_cryptocurrencies (user_id, cryptocurrency_id, amount) VALUES (:user_id, :cryptocurrency_id, :amount)');
+        }
+        else {
+            $amount+=$userCryptocurrency->getAmount();
+            $statement = $this->database->prepare('UPDATE user_cryptocurrencies SET amount = :amount WHERE user_id = :user_id AND cryptocurrency_id = :cryptocurrency_id');
+        }
+        
+        
         $statement->bindParam(':user_id', $userId, Database::PARAM_INT);
         $statement->bindParam(':cryptocurrency_id', $cryptocurrency->getId(), Database::PARAM_STR);
         $statement->bindParam(':amount', $amount, Database::PARAM_INT);

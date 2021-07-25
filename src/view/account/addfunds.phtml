@@ -1,0 +1,17 @@
+<?php
+
+require_once(__DIR__ . '/../common/header.phtml'); ?>
+
+<div class="container">
+    <section id="buy-form" class="padded">
+        <h3>Add Funds (USD)</h3>
+        <form method="post" action="/account/addfunds">
+            <div class="form-group">
+                <input type="text" class="form-control" id="amount" placeholder="Amount" name="amount">
+            </div>
+            <button type="submit" class="btn btn-success">Add</button>
+        </form>
+    </section>
+</div>
+
+<?php require_once(__DIR__ . '/../common/footer.phtml'); ?>

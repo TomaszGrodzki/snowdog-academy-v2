@@ -66,7 +66,7 @@ class Account
         $this->user = $user;
         $funds = $this->user->getFunds() + $_POST['amount'];
 
-        $this->userManager->addFunds($this->user->getId(), $funds);
+        $this->userManager->updateFunds($this->user->getId(), $funds);
         $_SESSION['flash'] = 'Added '.$_POST['amount']. ' USD to your account';
         header('Location: /cryptos');
     }

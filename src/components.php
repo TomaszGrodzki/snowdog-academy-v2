@@ -30,7 +30,7 @@ RouteRepository::registerRoute('POST', '/cryptos/buy/{id}', Cryptos::class, 'buy
 RouteRepository::registerRoute('GET', '/cryptos/sell/{id}', Cryptos::class, 'sell');
 RouteRepository::registerRoute('POST', '/cryptos/sell/{id}', Cryptos::class, 'sellPost');
 RouteRepository::registerRoute('GET', '/account', Account::class, 'index');
-RouteRepository::registerRoute('GET', '/account/addfunds', Account::class, 'addfunds');
+RouteRepository::registerRoute('GET', '/account/addfunds', Account::class, 'addFunds');
 RouteRepository::registerRoute('POST', '/account/addfunds', Account::class, 'addFundsPost');
 
 Menu::register(LoginMenu::class, 100);

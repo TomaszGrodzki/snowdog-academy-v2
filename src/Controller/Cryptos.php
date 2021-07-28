@@ -28,6 +28,15 @@ class Cryptos
     {
         require __DIR__ . '/../view/cryptos/index.phtml';
     }
+    private function validateAmount($amount): bool
+    {
+        if (empty($amount) || $amount <= 0 || !is_numeric($amount)) {
+            $_SESSION['flash'] = 'Amount must be a number greater than 0';
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     public function buy(string $id): void
     {
@@ -63,10 +72,24 @@ class Cryptos
             header('Location: /cryptos');
             return;
         }
-        $amount = $_POST['amount'];
-        $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, $amount);
 
-        $_SESSION['flash'] = 'You have bought '.$amount .' of '. $cryptocurrency->getId();
+        $amount = $_POST['amount'];
+        var_dump($amount);
+
+        if ($this->validateAmount($amount)) {
+            $funds = $user->getFunds();
+            $price = $cryptocurrency->getPrice();
+            $total = $price * $amount;
+
+            if ($funds < $total) {
+                $_SESSION['flash'] = 'You dont have enough funds';
+            } else {
+                $this->userManager->updateFunds($user->getId(), $funds - $total);
+                $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, $amount);
+
+                $_SESSION['flash'] = 'You have bought ' . $amount . ' of ' . $cryptocurrency->getId();
+            }
+        }
 
         header('Location: /cryptos');
     }
@@ -111,14 +134,14 @@ class Cryptos
         $userCryptocurrency = $this->userCryptocurrencyManager->getUserCryptocurrency($user->getId(), $id);
         $newUserCryptocurrencyAmount = $userCryptocurrency->getAmount() - $amount;
 
-        if($newUserCryptocurrencyAmount < 0) {
+        if ($newUserCryptocurrencyAmount < 0) {
             $_SESSION['flash'] = 'You can not sell more than you have';
             header('Location: /account');
             return;
         }
 
         $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, $newUserCryptocurrencyAmount);
-        $_SESSION['flash'] = 'You have sold '.$amount .' of '. $cryptocurrency->getId();
+        $_SESSION['flash'] = 'You have sold ' . $amount . ' of ' . $cryptocurrency->getId();
 
         header('Location: /cryptos');
     }

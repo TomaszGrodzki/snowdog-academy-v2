@@ -64,10 +64,16 @@ class Account
             return;
         }
         $this->user = $user;
-        $funds = $this->user->getFunds() + $_POST['amount'];
 
-        $this->userManager->updateFunds($this->user->getId(), $funds);
-        $_SESSION['flash'] = 'Added '.$_POST['amount']. ' USD to your account';
+        $amount = $_POST['amount'];
+        if (empty($amount) || $amount <= 0 || !is_numeric($amount)) {
+            $_SESSION['flash'] = 'Amount must be a number greater than 0';
+        } else {
+            $userFunds = $this->user->getFunds();
+
+            $this->userManager->updateFunds($this->user->getId(), $userFunds + $amount);
+            $_SESSION['flash'] = 'Added ' . $amount . ' USD to your account';
+        }
         header('Location: /cryptos');
     }
 }

@@ -74,7 +74,6 @@ class Cryptos
         }
 
         $amount = $_POST['amount'];
-        var_dump($amount);
 
         if ($this->validateAmount($amount)) {
             $funds = $user->getFunds();
@@ -131,18 +130,25 @@ class Cryptos
         }
 
         $amount = $_POST['amount'];
-        $userCryptocurrency = $this->userCryptocurrencyManager->getUserCryptocurrency($user->getId(), $id);
-        $newUserCryptocurrencyAmount = $userCryptocurrency->getAmount() - $amount;
+        if ($this->validateAmount($amount)) {
 
-        if ($newUserCryptocurrencyAmount < 0) {
-            $_SESSION['flash'] = 'You can not sell more than you have';
-            header('Location: /account');
-            return;
+            $funds = $user->getFunds();
+            $price = $cryptocurrency->getPrice();
+            $total = $price * $amount;
+
+            $userCryptocurrency = $this->userCryptocurrencyManager->getUserCryptocurrency($user->getId(), $id);
+            $userCryptocurrencyAmount = $userCryptocurrency->getAmount();
+
+            if ($userCryptocurrencyAmount < $amount) {
+                $_SESSION['flash'] = 'You can not sell more than you have';
+                header('Location: /account');
+                return;
+            } else {
+                $this->userManager->updateFunds($user->getId(), $funds + $total);
+                $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, $userCryptocurrencyAmount - $amount);
+                $_SESSION['flash'] = 'You have sold ' . $amount . ' of ' . $cryptocurrency->getId();
+            }
         }
-
-        $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, $newUserCryptocurrencyAmount);
-        $_SESSION['flash'] = 'You have sold ' . $amount . ' of ' . $cryptocurrency->getId();
-
         header('Location: /cryptos');
     }
 

@@ -20,19 +20,31 @@ class UpdatePrices
     {
         // TODO
         // use $this->cryptocurrencyManager->updatePrice() method
-        
+
         $ch = curl_init();
-        foreach($this->cryptocurrencyManager->getAllCryptocurrencies() as $cryptocurrency) {
+        foreach ($this->cryptocurrencyManager->getAllCryptocurrencies() as $cryptocurrency) {
             $id = $cryptocurrency->getId();
-            $uri = 'https://api.coingecko.com/api/v3/simple/price?ids='.$id.'&vs_currencies=usd';
+            $uri = 'https://api.coingecko.com/api/v3/simple/price?ids=' . $id . '&vs_currencies=usd';
             curl_setopt($ch, CURLOPT_URL, $uri);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
             $response = curl_exec($ch);
-            $response = json_decode($response, true);
-            $price = $response[$id]['usd'];
+            $http_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            if ($http_code != '200') {
+                $output->writeln('Error: response - ' . $id);
+            } else {
 
-            $this->cryptocurrencyManager->updatePrice($id, $price);
-            $output->writeln($id. ' - updated price: '. $price . ' USD');
+                $response = json_decode($response, true);
+                if (!is_array($response) || !array_key_exists('usd', $response[$id])) {
+                    $output->writeln('Error: data - ' . $id);
+                } else {
+                    $price = $response[$id]['usd'];
+
+                    $this->cryptocurrencyManager->updatePrice($id, $price);
+                    $output->writeln($id . ' - updated price: ' . $price . ' USD');
+                }
+            }
         }
+        curl_close($ch);
     }
 }
